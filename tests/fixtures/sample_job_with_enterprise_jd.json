@@ -1,0 +1,66 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "title": "Solution Architect",
+  "level": "Senior",
+  "department": "Application Development",
+  "location": "Doha, Qatar",
+  "remote_allowed": false,
+  "status": "draft",
+  "description": "Lead architecture for enterprise platforms.",
+  "requirements": "Education: B.E\nExperience: 8+ years",
+  "spec_json": {
+    "job_title": "Solution Architect",
+    "department": "Application Development",
+    "location": {
+      "city": "Doha",
+      "country": "Qatar",
+      "work_model": "Hybrid",
+      "travel_required": false
+    },
+    "about_company": "Malomatia is a leading digital transformation partner in Qatar.",
+    "position_summary": "Lead the design and delivery of scalable enterprise solutions for public sector clients.",
+    "responsibilities": [
+      "Define solution architecture aligned to business outcomes.",
+      "Guide delivery teams on technical standards and best practices."
+    ],
+    "required_qualifications": {
+      "education": "B.E / B.Tech in Computer Science or equivalent",
+      "experience": "8+ years of solution architecture experience",
+      "technical_skills": ["Azure", "Microservices", "API Design"]
+    },
+    "preferred_qualifications": ["TOGAF certification"],
+    "soft_skills": ["Stakeholder management", "Communication"],
+    "tools_technologies": ["Azure", "Kubernetes", "PostgreSQL"],
+    "success_metrics": ["Successful platform launches", "Architecture review compliance"],
+    "work_environment": {
+      "reports_to": "Head of Application Development",
+      "collaborates_with": ["Delivery Managers", "Security Team"]
+    },
+    "compensation_benefits": ["Competitive salary", "Health insurance"],
+    "equal_opportunity_statement": "We are an equal opportunity employer.",
+    "application_instructions": {
+      "required_materials": ["Resume", "Cover letter"]
+    },
+    "metadata": {
+      "job_level": "Senior",
+      "removed_sections": [],
+      "dialog_inputs": {
+        "job_title": "Solution Architect",
+        "job_level": "Senior",
+        "department": "Application Development",
+        "years_of_experience": "8+",
+        "internal_title": "Senior Consultant L2",
+        "qualification": "B.E / B.Tech",
+        "skills": ["Azure", "Microservices", "API Design"],
+        "location": "Doha, Qatar"
+      }
+    },
+    "custom_sections": [
+      {
+        "id": "custom-travel",
+        "title": "Travel Policy",
+        "content": "Up to twenty percent travel may be required for client workshops and delivery."
+      }
+    ]
+  }
+}

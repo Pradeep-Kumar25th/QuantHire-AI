@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "quanthire.fullname" . }}-config
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "quanthire.labels" . | nindent 4 }}
+data:
+  DEPLOYMENT_TARGET: {{ .Values.config.deploymentTarget | quote }}
+  APP_ENV: {{ .Values.config.appEnv | quote }}
+  AUTH_MODE: {{ .Values.config.authMode | quote }}
+  DEBUG: {{ .Values.config.debug | default "false" | quote }}
+  LOG_LEVEL: {{ .Values.config.logLevel | default "INFO" | quote }}
+
+  POSTGRES_HOST: {{ .Values.config.postgres.host | quote }}
+  POSTGRES_DB: {{ .Values.config.postgres.database | quote }}
+  POSTGRES_PORT: {{ .Values.config.postgres.port | toString | quote }}
+  POSTGRES_SSLMODE: {{ .Values.config.postgres.sslmode | quote }}
+
+  LLM_PROVIDER: {{ .Values.config.llmProvider | quote }}
+  # Model name must match the Azure OpenAI *deployment* name; agents 404 otherwise.
+  LLM_MODEL: {{ .Values.config.llmModel | default .Values.config.openai.chatDeployment | quote }}
+  EMBEDDING_PROVIDER: {{ .Values.config.embeddingProvider | default "azure_openai" | quote }}
+  EMBEDDING_DIMENSION: {{ .Values.config.embeddingDimension | default "768" | quote }}
+  AZURE_OPENAI_ENDPOINT: {{ .Values.config.openai.endpoint | quote }}
+  AZURE_OPENAI_API_VERSION: {{ .Values.config.openai.apiVersion | quote }}
+  AZURE_OPENAI_CHAT_DEPLOYMENT: {{ .Values.config.openai.chatDeployment | quote }}
+  AZURE_OPENAI_EMBEDDING_DEPLOYMENT: {{ .Values.config.openai.embeddingDeployment | quote }}
+
+  STORAGE_TYPE: azure_blob
+  AZURE_STORAGE_ACCOUNT_NAME: {{ .Values.config.storage.accountName | quote }}
+  AZURE_STORAGE_CONTAINER: {{ .Values.config.storage.container | quote }}
+  AZURE_STORAGE_CONTAINER_PROCESSED: {{ .Values.config.storage.containerProcessed | quote }}
+  AZURE_STORAGE_BLOB_ENDPOINT: {{ .Values.config.storage.blobEndpoint | quote }}
+
+  AZURE_DOCUMENT_INTELLIGENCE_ENABLED: {{ .Values.config.documentIntelligence.enabled | toString | quote }}
+  AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: {{ .Values.config.documentIntelligence.endpoint | quote }}
+  AZURE_DOCUMENT_INTELLIGENCE_MODEL: {{ .Values.config.documentIntelligence.model | quote }}
+
+  VECTOR_STORE: {{ .Values.config.vectorStore | quote }}
+  MILVUS_ENABLED: {{ .Values.config.milvusEnabled | toString | quote }}
+  MILVUS_AUTO_LOAD: "false"
+
+  LANGGRAPH_CHECKPOINT_BACKEND: {{ .Values.config.langgraphCheckpointBackend | default "postgres" | quote }}
+
+  {{- if .Values.redis.enabled }}
+  CELERY_BROKER_URL: {{ .Values.redis.brokerUrl | quote }}
+  CELERY_RESULT_BACKEND: {{ .Values.redis.resultBackend | quote }}
+  {{- end }}
+
+  BFF_BACKEND_URL: {{ .Values.bff.backendUrl | quote }}

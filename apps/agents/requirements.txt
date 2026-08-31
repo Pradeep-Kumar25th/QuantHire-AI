@@ -1,0 +1,141 @@
+# QuantHireAI Agents Requirements - Enterprise Agentic AI Stack
+# Python 3.11+
+# MOST IN-DEMAND & HIGHEST-PAYING TECH STACK (2025)
+
+# ============================================================================
+# TIER 1: CRITICAL AGENTIC AI FRAMEWORKS (Highest Demand & Salary Impact)
+# ============================================================================
+langchain>=0.3.0                    # Latest LangChain - Industry Standard
+langchain-openai>=0.2.0             # OpenAI integration
+langchain-anthropic>=0.2.0          # Anthropic integration
+langchain-google-genai>=2.0.0      # Google Gemini integration
+langchain-community>=0.3.0         # Community integrations
+langgraph>=0.2.0                    # Latest LangGraph - Workflow orchestration
+langsmith>=0.1.0                    # CRITICAL: Observability & monitoring
+pyautogen>=0.2.0                    # AutoGen Studio - Multi-agent framework
+crewai>=0.28.0                      # CrewAI - Collaborative agents
+crewai[google-genai]                # CrewAI Google Gemini provider support
+google-generativeai>=0.8.0          # Google Generative AI SDK
+semantic-kernel>=1.0.0              # Microsoft Semantic Kernel
+
+# ============================================================================
+# TIER 2: ADVANCED RAG & VECTOR SEARCH (High Demand)
+# ============================================================================
+llama-index>=0.10.0                 # Latest LlamaIndex - Advanced RAG
+pinecone-client>=3.0.0              # Pinecone - Serverless vector DB
+weaviate-client>=4.0.0              # Weaviate - Graph + Vector
+qdrant-client>=1.7.0                # Qdrant - High-performance vector DB
+pgvector>=0.2.4                     # PostgreSQL vector extension
+pymilvus>=2.4.0                     # Milvus - Vector database
+sentence-transformers>=2.3.0       # Sentence Transformers - Embeddings
+
+# ============================================================================
+# TIER 3: LATEST LLM PROVIDERS (Critical - Always Latest)
+# ============================================================================
+openai>=1.40.0                      # Latest OpenAI SDK - GPT-4o, GPT-4 Turbo
+anthropic>=0.34.0                   # Latest Anthropic - Claude 3.5 Sonnet/Opus
+google-generativeai>=0.8.0          # Latest Google Gemini - Gemini 1.5 Pro
+mistralai>=1.0.0                    # Mistral AI - Mistral Large
+cohere>=5.0.0                       # Cohere - Command R+
+
+# Azure Non-Prod (Phase 3)
+azure-storage-blob>=12.19.0
+azure-ai-documentintelligence>=1.0.0
+azure-identity>=1.15.0
+
+# ============================================================================
+# TIER 4: PROGRAMMATIC LLM OPTIMIZATION (Cutting-Edge - High Value)
+# ============================================================================
+dspy-ai>=2.5.0                      # DSPy - Programmatic LLM optimization
+guidance>=0.1.0                     # Guidance - Constrained generation
+
+# ============================================================================
+# TIER 5: ORCHESTRATION & WORKFLOWS (Enterprise)
+# ============================================================================
+temporalio>=1.8.0                   # Temporal - Durable workflows
+prefect>=3.0.0                      # Prefect - Modern orchestration
+dagster>=1.8.0                      # Dagster - Data orchestration
+
+# Document Processing
+pypdf==4.0.1
+pdfplumber==0.10.3
+python-docx==1.1.0
+python-magic==0.4.27
+
+# Data Processing
+pandas==2.2.0
+numpy==1.26.3
+
+# Utilities
+pydantic==2.5.3
+python-dateutil==2.8.2
+tiktoken==0.5.2
+tenacity==8.2.3
+
+# Database
+sqlalchemy==2.0.25
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+
+# ============================================================================
+# TIER 6: OBSERVABILITY & MLOPS (Production Critical)
+# ============================================================================
+wandb>=0.17.0                       # Weights & Biases - MLOps platform
+mlflow>=2.11.0                      # MLflow - Model lifecycle
+langfuse>=2.0.0                     # LangFuse - LLM observability
+
+# ============================================================================
+# TIER 8: SERVERLESS & INFRASTRUCTURE (Scalability)
+# ============================================================================
+modal>=0.65.0                       # Modal - Serverless compute
+replicate>=0.25.0                   # Replicate - Model hosting
+
+# ============================================================================
+# DOCUMENT PROCESSING
+# ============================================================================
+pypdf>=4.0.1
+pdfplumber>=0.10.3
+python-docx>=1.1.0
+python-magic>=0.4.27
+
+# ============================================================================
+# DATA PROCESSING
+# ============================================================================
+pandas>=2.2.0
+numpy>=1.26.3
+
+# ============================================================================
+# UTILITIES
+# ============================================================================
+pydantic>=2.5.3
+python-dateutil>=2.8.2
+tiktoken>=0.5.2
+tenacity>=8.2.3
+
+# ============================================================================
+# DATABASE
+# ============================================================================
+sqlalchemy>=2.0.25
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.9
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+# ============================================================================
+# TESTING
+# ============================================================================
+pytest>=7.4.4
+pytest-asyncio>=0.23.3
+
+# ============================================================================
+# CODE QUALITY
+# ============================================================================
+black>=24.1.1
+isort>=5.13.2
+mypy>=1.8.0
+ruff>=0.1.15                        # Modern Python linter
+

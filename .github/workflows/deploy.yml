@@ -1,0 +1,324 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main        # Deploy to production
+      - staging     # Deploy to staging
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  AZURE_RESOURCE_GROUP: quanthire-rg
+  AKS_CLUSTER_NAME: quanthire-aks
+  HELM_CHART_PATH: infra/kubernetes/helm/quanthire
+
+jobs:
+  # ==================== Determine Environment ====================
+  determine-environment:
+    name: Determine Deployment Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      namespace: ${{ steps.set-env.outputs.namespace }}
+    
+    steps:
+      - name: Set environment based on branch or input
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "namespace=quanthire-${{ inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "namespace=quanthire-production" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "namespace=quanthire-staging" >> $GITHUB_OUTPUT
+          else
+            echo "Unknown branch or environment"
+            exit 1
+          fi
+
+  # ==================== Build and Push Docker Images ====================
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: determine-environment
+    
+    strategy:
+      matrix:
+        service: [api, web, worker]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.ACR_LOGIN_SERVER }}/quanthire/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=${{ needs.determine-environment.outputs.environment }}-latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: infra/docker/${{ matrix.service }}.Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BUILD_ENV=${{ needs.determine-environment.outputs.environment }}
+          cache-from: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/quanthire/${{ matrix.service }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.ACR_LOGIN_SERVER }}/quanthire/${{ matrix.service }}:buildcache,mode=max
+
+  # ==================== Database Migrations ====================
+  database-migrations:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    needs: [determine-environment, build-and-push]
+    environment: ${{ needs.determine-environment.outputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          cd apps/api
+          pip install -r requirements.txt
+          pip install alembic
+
+      - name: Run Alembic migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd apps/api
+          alembic upgrade head
+
+  # ==================== Deploy to Kubernetes ====================
+  deploy-to-k8s:
+    name: Deploy to AKS
+    runs-on: ubuntu-latest
+    needs: [determine-environment, build-and-push, database-migrations]
+    environment: ${{ needs.determine-environment.outputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }}-${{ needs.determine-environment.outputs.environment }} \
+            --name ${{ env.AKS_CLUSTER_NAME }}-${{ needs.determine-environment.outputs.environment }} \
+            --overwrite-existing
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: "3.13.0"
+
+      - name: Create namespace if not exists
+        run: |
+          kubectl create namespace ${{ needs.determine-environment.outputs.namespace }} || true
+
+      - name: Create image pull secret
+        run: |
+          kubectl create secret docker-registry acr-secret \
+            --namespace=${{ needs.determine-environment.outputs.namespace }} \
+            --docker-server=${{ secrets.ACR_LOGIN_SERVER }} \
+            --docker-username=${{ secrets.ACR_USERNAME }} \
+            --docker-password=${{ secrets.ACR_PASSWORD }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install quanthire \
+            ${{ env.HELM_CHART_PATH }} \
+            --namespace ${{ needs.determine-environment.outputs.namespace }} \
+            --values ${{ env.HELM_CHART_PATH }}/values-${{ needs.determine-environment.outputs.environment }}.yaml \
+            --set image.tag=${{ github.sha }} \
+            --set image.pullPolicy=Always \
+            --set api.image=${{ secrets.ACR_LOGIN_SERVER }}/quanthire/api:${{ github.sha }} \
+            --set web.image=${{ secrets.ACR_LOGIN_SERVER }}/quanthire/web:${{ github.sha }} \
+            --set worker.image=${{ secrets.ACR_LOGIN_SERVER }}/quanthire/worker:${{ github.sha }} \
+            --set secrets.databaseUrl=${{ secrets.DATABASE_URL }} \
+            --set secrets.redisUrl=${{ secrets.REDIS_URL }} \
+            --set secrets.openaiApiKey=${{ secrets.OPENAI_API_KEY }} \
+            --set secrets.anthropicApiKey=${{ secrets.ANTHROPIC_API_KEY }} \
+            --set secrets.jwtSecret=${{ secrets.JWT_SECRET }} \
+            --set secrets.sentryDsn=${{ secrets.SENTRY_DSN }} \
+            --wait \
+            --timeout 10m
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/quanthire-api -n ${{ needs.determine-environment.outputs.namespace }}
+          kubectl rollout status deployment/quanthire-web -n ${{ needs.determine-environment.outputs.namespace }}
+          kubectl rollout status deployment/quanthire-worker -n ${{ needs.determine-environment.outputs.namespace }}
+
+      - name: Get service URLs
+        run: |
+          echo "=== Deployment successful! ==="
+          echo "API URL:"
+          kubectl get svc quanthire-api -n ${{ needs.determine-environment.outputs.namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+          echo ""
+          echo "Web URL:"
+          kubectl get svc quanthire-web -n ${{ needs.determine-environment.outputs.namespace }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+
+  # ==================== Smoke Tests ====================
+  smoke-tests:
+    name: Run Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [determine-environment, deploy-to-k8s]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Wait for services to be ready
+        run: sleep 30
+
+      - name: Test API health endpoint
+        run: |
+          API_URL="${{ secrets.API_URL_BASE }}/health"
+          echo "Testing $API_URL"
+          response=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
+          if [ $response -eq 200 ]; then
+            echo "✅ API health check passed"
+          else
+            echo "❌ API health check failed with status $response"
+            exit 1
+          fi
+
+      - name: Test API ready endpoint
+        run: |
+          API_URL="${{ secrets.API_URL_BASE }}/ready"
+          echo "Testing $API_URL"
+          response=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
+          if [ $response -eq 200 ]; then
+            echo "✅ API readiness check passed"
+          else
+            echo "❌ API readiness check failed with status $response"
+            exit 1
+          fi
+
+      - name: Test Web frontend
+        run: |
+          WEB_URL="${{ secrets.WEB_URL }}"
+          echo "Testing $WEB_URL"
+          response=$(curl -s -o /dev/null -w "%{http_code}" $WEB_URL)
+          if [ $response -eq 200 ]; then
+            echo "✅ Web frontend check passed"
+          else
+            echo "❌ Web frontend check failed with status $response"
+            exit 1
+          fi
+
+  # ==================== Notify Deployment ====================
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [determine-environment, smoke-tests]
+    if: always()
+    
+    steps:
+      - name: Send Slack notification
+        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Deployment to ${{ needs.determine-environment.outputs.environment }} ${{ job.status }}
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+
+      - name: Create GitHub deployment
+        uses: chrnorm/deployment-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: ${{ needs.determine-environment.outputs.environment }}
+          deployment-status: ${{ job.status }}
+
+  # ==================== Rollback on Failure ====================
+  rollback-on-failure:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [determine-environment, smoke-tests]
+    if: failure() && needs.determine-environment.outputs.environment == 'production'
+    environment: production-rollback
+    
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }}-production \
+            --name ${{ env.AKS_CLUSTER_NAME }}-production \
+            --overwrite-existing
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: Rollback deployment
+        run: |
+          helm rollback quanthire \
+            --namespace quanthire-production \
+            --wait \
+            --timeout 5m
+
+      - name: Verify rollback
+        run: |
+          kubectl rollout status deployment/quanthire-api -n quanthire-production
+          kubectl rollout status deployment/quanthire-web -n quanthire-production
+          kubectl rollout status deployment/quanthire-worker -n quanthire-production
+
+      - name: Notify rollback
+        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: warning
+          text: |
+            🚨 Production deployment failed - rolled back to previous version
+            Commit: ${{ github.sha }}
+            Author: ${{ github.actor }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

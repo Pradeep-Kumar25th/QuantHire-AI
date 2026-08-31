@@ -1,0 +1,228 @@
+# Default values for quanthire (overridden by values-nonprod.yaml on Azure Non-Prod)
+namespace: quanthire
+
+replicaCount:
+  api: 2
+  web: 2
+  worker: 3
+
+image:
+  registry: docker.io
+  repository: quanthire
+  backend:
+    repository: quanthire-backend
+  frontend:
+    repository: quanthire-frontend
+  worker:
+    repository: quanthire-worker
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  api:
+    port: 8000
+  web:
+    port: 3000
+
+# NOTE: no ingress template exists in this chart yet; this block is inert
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: quanthire.ai
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web
+        - path: /api
+          pathType: Prefix
+          service: api
+  tls:
+    - secretName: quanthire-tls
+      hosts:
+        - quanthire.ai
+
+resources:
+  api:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  web:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  worker:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+
+# No HPA template exists in this chart yet; keep disabled so replicas render
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+postgresql:
+  enabled: true
+  auth:
+    username: quanthire
+    password: changeme
+    database: quanthire
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+
+redis:
+  enabled: false
+  brokerUrl: ""
+  resultBackend: ""
+  architecture: standalone
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+prometheus:
+  enabled: true
+
+grafana:
+  enabled: true
+  adminPassword: changeme
+
+# Non-secret config (required by configmap.yaml templates)
+config:
+  deploymentTarget: local
+  appEnv: development
+  authMode: none
+  debug: "true"
+  logLevel: INFO
+  llmProvider: openai
+  embeddingProvider: azure_openai
+  embeddingDimension: "768"
+  vectorStore: pgvector
+  milvusEnabled: false
+  langgraphCheckpointBackend: postgres
+  postgres:
+    host: localhost
+    port: 5432
+    database: quanthire
+    sslmode: prefer
+  openai:
+    endpoint: ""
+    apiVersion: "2024-08-01-preview"
+    chatDeployment: gpt-4o
+    embeddingDeployment: text-embedding-3-large
+  storage:
+    accountName: ""
+    container: uploads
+    containerProcessed: processed
+    blobEndpoint: ""
+  documentIntelligence:
+    enabled: false
+    endpoint: ""
+    model: prebuilt-layout
+
+bff:
+  backendUrl: http://quanthire-backend:8000
+
+# AKS secret references (create secrets with kubectl before deploy)
+secrets:
+  db:
+    name: quanthire-db-secret
+    keys:
+      - DATABASE_URL
+  blob:
+    name: quanthire-blob-secret
+    keys:
+      - AZURE_STORAGE_CONNECTION_STRING
+  openai:
+    name: quanthire-aoai-secret
+    keys:
+      - AZURE_OPENAI_API_KEY
+  di:
+    name: quanthire-di-secret
+    keys:
+      - AZURE_DOCUMENT_INTELLIGENCE_KEY
+  auth:
+    name: quanthire-auth-secret
+    keys:
+      - JWT_SECRET_KEY
+
+probes:
+  livenessPath: /healthz
+  readinessPath: /readyz
+
+# Legacy flat secrets (unused by current templates — kept for older docs)
+legacySecrets:
+  openaiApiKey: ""
+  anthropicApiKey: ""
+  nextauthSecret: ""
+  jwtSecret: ""
+
+env:
+  APP_ENV: production
+  DEBUG: "false"
+  LOG_LEVEL: INFO
+  LLM_PROVIDER: openai
+  LLM_DAILY_BUDGET_USD: "100"
+

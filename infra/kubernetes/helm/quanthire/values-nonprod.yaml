@@ -1,0 +1,154 @@
+# QuantHire — Azure Non-Prod Helm values (REFERENCE ONLY — use raw YAML for deploy)
+# Non-Prod deploy: kubectl apply -f infra/kubernetes/nonprod/quanthire.yaml
+# Backend must stay ClusterIP; frontend LoadBalancer — see quanthire.yaml (not this chart).
+
+namespace: quanthire-nonprod
+
+image:
+  registry: crailnpdwe01.azurecr.io
+  backend:
+    repository: quanthire-backend
+    tag: "0.1.3"
+  frontend:
+    repository: quanthire-frontend
+    tag: "0.1.3"
+  worker:
+    repository: quanthire-worker
+  tag: "0.1.3"
+  pullPolicy: Always
+
+replicaCount:
+  api: 1
+  web: 1
+  worker: 0
+
+autoscaling:
+  enabled: false
+
+serviceAccount:
+  create: true
+
+# Deprecated for Non-Prod — raw quanthire.yaml uses backend ClusterIP + frontend LoadBalancer
+service:
+  type: LoadBalancer
+  web:
+    port: 80
+  api:
+    port: 8000
+
+bff:
+  backendUrl: http://quanthire-backend.quanthire-nonprod.svc.cluster.local:8000
+
+ingress:
+  enabled: false  # v1: access via LoadBalancer IP; DNS/TLS later
+
+redis:
+  enabled: false
+  brokerUrl: ""
+  resultBackend: ""
+
+config:
+  deploymentTarget: azure-nonprod
+  authMode: basic
+  appEnv: nonprod
+  debug: "false"
+  logLevel: INFO
+  langgraphCheckpointBackend: postgres
+
+  postgres:
+    host: psql-ail-npd-we-01.postgres.database.azure.com
+    port: 5432
+    database: quanthire_ai
+    sslmode: require
+
+  openai:
+    endpoint: https://aif-ail-npd-we-01.openai.azure.com/
+    apiVersion: "2024-08-01-preview"
+    chatDeployment: gpt-4o
+    embeddingDeployment: text-embedding-3-large
+
+  storage:
+    accountName: dlsailnpdqc01
+    container: quanthire-uploads
+    containerProcessed: quanthire-processed
+    blobEndpoint: https://dlsailnpdqc01.blob.core.windows.net/
+
+  documentIntelligence:
+    enabled: true
+    endpoint: https://di-ail-npd-we-01.cognitiveservices.azure.com/
+    model: prebuilt-layout
+
+  vectorStore: pgvector
+  milvusEnabled: false
+  llmProvider: azure_openai
+  embeddingProvider: azure_openai
+  embeddingDimension: "768"
+
+secrets:
+  db:
+    name: quanthire-db-secret
+    keys:
+      - DATABASE_URL
+  blob:
+    name: quanthire-blob-secret
+    keys:
+      - AZURE_STORAGE_CONNECTION_STRING
+  openai:
+    name: quanthire-aoai-secret
+    keys:
+      - AZURE_OPENAI_API_KEY
+  di:
+    name: quanthire-di-secret
+    keys:
+      - AZURE_DOCUMENT_INTELLIGENCE_KEY
+  auth:
+    name: quanthire-auth-secret
+    keys:
+      - JWT_SECRET_KEY
+
+probes:
+  livenessPath: /healthz
+  readinessPath: /readyz
+
+resources:
+  api:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  web:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  worker:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Frontend image runs as nextjs (uid 1001); override only for the web pod.
+webSecurityContext:
+  runAsUser: 1001
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL

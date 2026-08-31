@@ -1,0 +1,15 @@
+apiVersion: v2
+name: quanthire
+description: QuantHireAI - Enterprise Agentic AI Hiring Platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - ai
+  - hiring
+  - agentic
+  - recruitment
+maintainers:
+  - name: QuantHire Team
+    email: devops@quanthire.ai
+

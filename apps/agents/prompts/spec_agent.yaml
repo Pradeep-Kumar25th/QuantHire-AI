@@ -1,0 +1,243 @@
+# SpecAgent Prompt Template
+# Generates structured job specifications from hiring manager input
+
+agent_name: "SpecAgent"
+version: "1.0.0"
+model_preference: "gpt-4o"
+temperature: 0.5
+
+system_prompt: |
+  You are SpecAgent, an expert AI recruiter specializing in creating detailed, structured job specifications.
+  
+  Your task is to produce a comprehensive job specification based on hiring manager input and company templates.
+  
+  Guidelines:
+  - Extract all relevant information from the conversation
+  - Use company policy documents and templates when available
+  - Include specific, measurable requirements
+  - Differentiate must-have from nice-to-have skills
+  - Suggest appropriate screening questions
+  - Consider market standards and compensation bands
+  - For Qatar-based roles, include local benefits and visa information
+  - Ensure compliance with anti-discrimination laws (NEVER request age, gender, race, religion)
+  
+  Output ONLY valid JSON matching the specified schema. No additional commentary.
+
+user_prompt_template: |
+  Create a structured job specification based on the following information:
+  
+  ## Hiring Manager Input
+  {manager_input}
+  
+  ## Company Context
+  Location: {location}
+  Department: {department}
+  Reporting To: {reports_to}
+  Team Size: {team_size}
+  
+  ## Company Policies (RAG Context)
+  {company_policies}
+  
+  ## Compensation Bands (Internal Data)
+  {compensation_bands}
+  
+  ## Instructions
+  1. Generate a complete job specification
+  2. Include 5-7 screening questions
+  3. Weight skills by importance (must sum to 100%)
+  4. Suggest 2-3 assessment types
+  5. Include realistic timeline estimates
+  
+  Respond with valid JSON only.
+
+output_schema:
+  type: "object"
+  required:
+    - "job_title"
+    - "level"
+    - "responsibilities"
+    - "must_have_skills"
+    - "screening_questions"
+    - "weightings"
+  properties:
+    job_title:
+      type: "string"
+      description: "Clear, specific job title"
+    level:
+      type: "string"
+      enum: ["junior", "mid", "senior", "lead", "principal", "executive"]
+    department:
+      type: "string"
+    location:
+      type: "string"
+    work_arrangement:
+      type: "string"
+      enum: ["on-site", "hybrid", "remote"]
+    responsibilities:
+      type: "array"
+      items:
+        type: "string"
+      minItems: 5
+      maxItems: 10
+    must_have_skills:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          skill:
+            type: "string"
+          years_required:
+            type: "integer"
+            minimum: 0
+          proficiency_level:
+            type: "string"
+            enum: ["basic", "intermediate", "advanced", "expert"]
+      minItems: 3
+    nice_to_have_skills:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          skill:
+            type: "string"
+          years_preferred:
+            type: "integer"
+    education_requirements:
+      type: "object"
+      properties:
+        degree_level:
+          type: "string"
+          enum: ["high_school", "associate", "bachelor", "master", "phd", "not_required"]
+        field_of_study:
+          type: "array"
+          items:
+            type: "string"
+        can_substitute_with_experience:
+          type: "boolean"
+    certifications:
+      type: "array"
+      items:
+        type: "string"
+    screening_questions:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          question:
+            type: "string"
+          type:
+            type: "string"
+            enum: ["yes_no", "short_text", "long_text", "multiple_choice", "numeric"]
+          required:
+            type: "boolean"
+          ideal_answer:
+            type: "string"
+      minItems: 5
+      maxItems: 10
+    weightings:
+      type: "object"
+      description: "Importance weights (must sum to 100)"
+      properties:
+        technical_skills:
+          type: "integer"
+          minimum: 0
+          maximum: 100
+        experience:
+          type: "integer"
+          minimum: 0
+          maximum: 100
+        cultural_fit:
+          type: "integer"
+          minimum: 0
+          maximum: 100
+        communication:
+          type: "integer"
+          minimum: 0
+          maximum: 100
+    suggested_assessments:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          type:
+            type: "string"
+            enum: ["coding", "case_study", "presentation", "technical_interview", "behavioral_interview", "written_test"]
+          duration_minutes:
+            type: "integer"
+          description:
+            type: "string"
+    compensation_range:
+      type: "object"
+      properties:
+        currency:
+          type: "string"
+        min_annual:
+          type: "integer"
+        max_annual:
+          type: "integer"
+        equity_included:
+          type: "boolean"
+    benefits:
+      type: "array"
+      items:
+        type: "string"
+    visa_sponsorship:
+      type: "boolean"
+    estimated_timeline:
+      type: "object"
+      properties:
+        screening_days:
+          type: "integer"
+        assessment_days:
+          type: "integer"
+        interview_days:
+          type: "integer"
+        decision_days:
+          type: "integer"
+        total_days:
+          type: "integer"
+
+examples:
+  - input:
+      manager_input: "Looking for a senior Python developer to work on our AI platform. Need someone with ML experience and cloud deployment knowledge."
+      location: "Doha, Qatar"
+      department: "Engineering"
+    output:
+      job_title: "Senior Python Engineer - AI Platform"
+      level: "senior"
+      responsibilities:
+        - "Design and implement scalable AI/ML services"
+        - "Build and maintain cloud infrastructure on Azure"
+        - "Collaborate with data scientists on model deployment"
+      must_have_skills:
+        - skill: "Python"
+          years_required: 5
+          proficiency_level: "advanced"
+        - skill: "Machine Learning"
+          years_required: 3
+          proficiency_level: "intermediate"
+
+constraints:
+  - "NEVER include questions about age, gender, race, religion, marital status, or other protected characteristics"
+  - "All compensation ranges must align with internal bands"
+  - "Screening questions must be job-relevant and non-discriminatory"
+  - "Suggested assessments must be validated and accessible"
+  - "For Qatar roles, include relevant local benefits (housing allowance, flight tickets, etc.)"
+
+metadata:
+  created_by: "QuantHire AI Team"
+  last_updated: "2024-10-09"
+  review_cycle: "quarterly"
+  compliance_reviewed: true
+
+
+
+
+
+
+
+
+
+
+
+

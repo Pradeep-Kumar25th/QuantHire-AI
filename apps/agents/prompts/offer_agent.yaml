@@ -1,0 +1,279 @@
+# OfferAgent Prompt Template
+# Generates competitive, personalized offer packages
+
+agent_name: "OfferAgent"
+version: "1.0.0"
+model_preference: "gpt-4o"
+temperature: 0.4
+
+system_prompt: |
+  You are OfferAgent, an expert at creating competitive, personalized offer packages that attract top talent while staying within budget.
+  
+  Your task is to generate comprehensive offer letters with competitive compensation based on:
+  - Internal compensation bands
+  - Market data and benchmarks
+  - Candidate's current compensation and expectations
+  - Role level and responsibilities
+  - Location and cost of living
+  - Equity/benefits packages
+  
+  Guidelines:
+  - Use internal bands as baseline
+  - Adjust for market conditions and candidate value
+  - Include detailed benefits breakdown
+  - Personalize messaging
+  - Consider candidate's motivations (from interview notes)
+  - For Qatar: include housing allowance, flight tickets, visa sponsorship details
+  - Ensure legal compliance with labor laws
+  - Support negotiation scenarios with ranges
+  
+  Output ONLY valid JSON matching the specified schema. No additional commentary.
+
+user_prompt_template: |
+  Generate an offer package for this candidate:
+  
+  ## Candidate Information
+  Name: {candidate_name}
+  Current Role: {current_role}
+  Current Compensation: {current_compensation}
+  Expected Compensation: {expected_compensation}
+  Key Motivations: {candidate_motivations}
+  
+  ## Position Details
+  Role: {role_title}
+  Level: {level}
+  Department: {department}
+  Location: {location}
+  
+  ## Internal Data
+  Compensation Band for Level: {compensation_band}
+  Market Data (P50/P75): {market_data}
+  Budget Approval: {budget_approval}
+  
+  ## Company Benefits
+  {benefits_package}
+  
+  ## Instructions
+  1. Recommend competitive base salary within band
+  2. Structure equity/bonus appropriately
+  3. Include complete benefits breakdown
+  4. Add location-specific benefits (e.g., housing for Qatar)
+  5. Personalize offer message highlighting candidate's strengths
+  6. Provide negotiation range (if applicable)
+  7. Include all legal requirements
+  
+  Respond with valid JSON only.
+
+output_schema:
+  type: "object"
+  required:
+    - "candidate_id"
+    - "job_id"
+    - "compensation"
+    - "benefits"
+    - "offer_message"
+  properties:
+    candidate_id:
+      type: "string"
+      format: "uuid"
+    job_id:
+      type: "string"
+      format: "uuid"
+    offer_level:
+      type: "string"
+      description: "initial, competitive, strong"
+      enum: ["initial", "competitive", "strong", "aggressive"]
+    compensation:
+      type: "object"
+      required: ["base_salary", "currency"]
+      properties:
+        base_salary:
+          type: "integer"
+          minimum: 0
+        currency:
+          type: "string"
+        bonus:
+          type: "object"
+          properties:
+            type:
+              type: "string"
+              enum: ["annual", "signing", "performance", "retention"]
+            amount:
+              type: "integer"
+            conditions:
+              type: "string"
+        equity:
+          type: "object"
+          properties:
+            type:
+              type: "string"
+              enum: ["stock_options", "rsu", "espp"]
+            amount:
+              type: "integer"
+            vesting_schedule:
+              type: "string"
+            valuation_note:
+              type: "string"
+        total_cash_year_1:
+          type: "integer"
+          description: "Total cash compensation in first year"
+        total_value_4_years:
+          type: "integer"
+          description: "Total value including equity over 4 years"
+    benefits:
+      type: "object"
+      properties:
+        health_insurance:
+          type: "object"
+          properties:
+            coverage:
+              type: "string"
+            employee_contribution:
+              type: "string"
+            family_included:
+              type: "boolean"
+        retirement:
+          type: "object"
+          properties:
+            type:
+              type: "string"
+            employer_match:
+              type: "string"
+        time_off:
+          type: "object"
+          properties:
+            annual_leave_days:
+              type: "integer"
+            sick_leave_days:
+              type: "integer"
+            public_holidays:
+              type: "integer"
+            parental_leave:
+              type: "string"
+        location_specific:
+          type: "object"
+          description: "For Qatar: housing, flights, etc."
+          properties:
+            housing_allowance_monthly:
+              type: "integer"
+            annual_flight_tickets:
+              type: "integer"
+            education_allowance:
+              type: "integer"
+            car_allowance:
+              type: "integer"
+            visa_sponsorship:
+              type: "boolean"
+        other_benefits:
+          type: "array"
+          items:
+            type: "string"
+    work_arrangement:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          enum: ["on-site", "hybrid", "remote"]
+        flexibility:
+          type: "string"
+    start_date:
+      type: "string"
+      description: "Proposed start date"
+    offer_expiry_date:
+      type: "string"
+      description: "Date by which candidate must respond"
+    offer_message:
+      type: "string"
+      description: "Personalized message to candidate"
+      minLength: 200
+      maxLength: 1000
+    negotiation_room:
+      type: "object"
+      description: "Internal: room for negotiation"
+      properties:
+        base_salary_max:
+          type: "integer"
+        bonus_flexibility:
+          type: "boolean"
+        equity_flexibility:
+          type: "boolean"
+        other_flexibility:
+          type: "array"
+          items:
+            type: "string"
+    competitive_analysis:
+      type: "object"
+      properties:
+        vs_market_p50:
+          type: "string"
+          description: "e.g., '+15%'"
+        vs_current_comp:
+          type: "string"
+          description: "e.g., '+25%'"
+        competitiveness_rating:
+          type: "string"
+          enum: ["below_market", "at_market", "above_market", "highly_competitive"]
+    next_steps:
+      type: "array"
+      items:
+        type: "string"
+    legal_notices:
+      type: "array"
+      items:
+        type: "string"
+      description: "Required legal disclaimers"
+
+examples:
+  - input:
+      candidate_name: "Jane Smith"
+      role_title: "Senior Python Engineer"
+      level: "senior"
+      location: "Doha, Qatar"
+      current_compensation: 200000
+      expected_compensation: 250000
+    output:
+      offer_level: "competitive"
+      compensation:
+        base_salary: 260000
+        currency: "QAR"
+        bonus:
+          type: "annual"
+          amount: 52000
+          conditions: "20% of base, subject to performance"
+        total_cash_year_1: 312000
+      benefits:
+        location_specific:
+          housing_allowance_monthly: 10000
+          annual_flight_tickets: 2
+          visa_sponsorship: true
+      offer_message: "We are thrilled to extend an offer for the Senior Python Engineer position. Your expertise in building scalable AI systems and strong performance in our assessment process made you a standout candidate..."
+      competitive_analysis:
+        vs_current_comp: "+30%"
+        competitiveness_rating: "above_market"
+
+constraints:
+  - "MUST stay within approved compensation bands (or flag for approval)"
+  - "All offers must comply with local labor laws"
+  - "Include all mandatory benefits by law (e.g., end-of-service gratuity for Qatar)"
+  - "Personalization must be based on interview notes and candidate profile"
+  - "Negotiation ranges are confidential (internal only)"
+  - "Equity valuations must include disclaimer"
+  - "Be transparent about probation periods and notice periods"
+
+metadata:
+  created_by: "QuantHire AI Team"
+  last_updated: "2024-10-09"
+  legal_review: "required_before_sending"
+  approval_workflow: "manager -> hr -> finance"
+
+
+
+
+
+
+
+
+
+
+
+

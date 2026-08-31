@@ -1,0 +1,327 @@
+# ParsingAgent Prompt Template
+# Extracts structured data from resumes
+
+agent_name: "ParsingAgent"
+version: "1.0.0"
+model_preference: "gpt-4o"
+temperature: 0.3
+
+system_prompt: |
+  You are ParsingAgent, an expert at extracting structured information from resumes and CVs.
+  
+  Your task is to parse resumes accurately and extract all relevant information into a structured format.
+  
+  Guidelines:
+  - Extract information exactly as presented (no inference beyond what's stated)
+  - Normalize job titles, company names, and skills to standard formats
+  - Calculate years of experience accurately from dates
+  - Identify skills both from explicit "Skills" sections and from job descriptions
+  - Extract education details including degree level, field, institution, and graduation year
+  - Parse dates flexibly (handle various formats)
+  - Identify certifications and licenses
+  - Extract contact information
+  - Generate a concise professional summary (2-3 sentences)
+  - Handle multi-language resumes (English and Arabic)
+  
+  Output ONLY valid JSON matching the specified schema. No additional commentary.
+
+user_prompt_template: |
+  Parse the following resume and extract structured information:
+  
+  ## Resume Text
+  {resume_text}
+  
+  ## Job Context (Optional - for relevance scoring)
+  {job_context}
+  
+  ## Instructions
+  1. Extract ALL information present in the resume
+  2. Normalize skill names to standard formats (e.g., "js" -> "JavaScript")
+  3. Calculate total years of experience
+  4. Identify skill proficiency levels from context
+  5. Parse dates in any format to YYYY-MM
+  6. Extract email, phone, LinkedIn, GitHub if present
+  7. Generate a professional summary highlighting key qualifications
+  
+  Respond with valid JSON only.
+
+output_schema:
+  type: "object"
+  required:
+    - "candidate_id"
+    - "name"
+    - "emails"
+    - "skills"
+    - "work_experience"
+    - "education"
+    - "summary"
+  properties:
+    candidate_id:
+      type: "string"
+      format: "uuid"
+    name:
+      type: "object"
+      required: ["full_name"]
+      properties:
+        full_name:
+          type: "string"
+        first_name:
+          type: "string"
+        last_name:
+          type: "string"
+    emails:
+      type: "array"
+      items:
+        type: "string"
+        format: "email"
+      minItems: 1
+    phones:
+      type: "array"
+      items:
+        type: "string"
+    location:
+      type: "object"
+      properties:
+        city:
+          type: "string"
+        country:
+          type: "string"
+        willing_to_relocate:
+          type: "boolean"
+    linkedin_url:
+      type: "string"
+      format: "uri"
+    github_url:
+      type: "string"
+      format: "uri"
+    portfolio_url:
+      type: "string"
+      format: "uri"
+    skills:
+      type: "array"
+      items:
+        type: "object"
+        required: ["name"]
+        properties:
+          name:
+            type: "string"
+          years_experience:
+            type: "number"
+            minimum: 0
+          proficiency:
+            type: "string"
+            enum: ["beginner", "intermediate", "advanced", "expert"]
+          category:
+            type: "string"
+            enum: ["programming", "framework", "tool", "soft_skill", "domain_knowledge", "language"]
+          last_used_year:
+            type: "integer"
+      minItems: 1
+    work_experience:
+      type: "array"
+      items:
+        type: "object"
+        required: ["company", "role", "start_date"]
+        properties:
+          company:
+            type: "string"
+          role:
+            type: "string"
+          location:
+            type: "string"
+          start_date:
+            type: "string"
+            pattern: "^\\d{4}-\\d{2}$"
+          end_date:
+            type: "string"
+            pattern: "^\\d{4}-\\d{2}$|^present$"
+          is_current:
+            type: "boolean"
+          duration_months:
+            type: "integer"
+          description:
+            type: "string"
+          achievements:
+            type: "array"
+            items:
+              type: "string"
+          technologies_used:
+            type: "array"
+            items:
+              type: "string"
+    education:
+      type: "array"
+      items:
+        type: "object"
+        required: ["degree", "field", "institution"]
+        properties:
+          degree:
+            type: "string"
+            enum: ["High School", "Associate", "Bachelor", "Master", "PhD", "Bootcamp", "Certificate"]
+          field:
+            type: "string"
+          institution:
+            type: "string"
+          location:
+            type: "string"
+          graduation_year:
+            type: "integer"
+          gpa:
+            type: "number"
+          honors:
+            type: "string"
+    certifications:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          name:
+            type: "string"
+          issuing_organization:
+            type: "string"
+          issue_date:
+            type: "string"
+          expiry_date:
+            type: "string"
+          credential_id:
+            type: "string"
+          credential_url:
+            type: "string"
+    languages:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          language:
+            type: "string"
+          proficiency:
+            type: "string"
+            enum: ["elementary", "limited_working", "professional_working", "full_professional", "native"]
+    publications:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          title:
+            type: "string"
+          authors:
+            type: "array"
+            items:
+              type: "string"
+          publication:
+            type: "string"
+          year:
+            type: "integer"
+          url:
+            type: "string"
+    projects:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          name:
+            type: "string"
+          description:
+            type: "string"
+          technologies:
+            type: "array"
+            items:
+              type: "string"
+          url:
+            type: "string"
+    summary:
+      type: "string"
+      description: "2-3 sentence professional summary"
+      minLength: 50
+      maxLength: 500
+    total_years_experience:
+      type: "number"
+      minimum: 0
+    career_level:
+      type: "string"
+      enum: ["entry", "junior", "mid", "senior", "lead", "executive"]
+    parsing_confidence:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "Confidence in parsing quality (0-1)"
+    parsing_notes:
+      type: "array"
+      items:
+        type: "string"
+      description: "Any ambiguities or issues encountered"
+
+examples:
+  - input:
+      resume_text: |
+        John Doe
+        john.doe@email.com | +974-1234-5678 | Doha, Qatar
+        linkedin.com/in/johndoe | github.com/johndoe
+        
+        Senior Software Engineer with 8+ years building scalable systems.
+        
+        EXPERIENCE
+        Senior Software Engineer | TechCorp | Doha, Qatar | 2020 - Present
+        - Led team of 5 engineers building cloud-native applications on Azure
+        - Implemented microservices architecture serving 1M+ users
+        - Technologies: Python, FastAPI, React, PostgreSQL, Docker, Kubernetes
+        
+        Software Engineer | StartupXYZ | Dubai, UAE | 2016 - 2020
+        - Built RESTful APIs handling 10K requests/sec
+        - Reduced latency by 40% through caching optimization
+        - Technologies: Node.js, MongoDB, Redis, AWS
+        
+        EDUCATION
+        B.Sc. Computer Science | Qatar University | 2016 | GPA: 3.8/4.0
+        
+        SKILLS
+        Python (8 years), JavaScript (7 years), SQL (6 years), Docker (5 years)
+    output:
+      name:
+        full_name: "John Doe"
+        first_name: "John"
+        last_name: "Doe"
+      emails: ["john.doe@email.com"]
+      phones: ["+974-1234-5678"]
+      skills:
+        - name: "Python"
+          years_experience: 8
+          proficiency: "expert"
+          category: "programming"
+        - name: "JavaScript"
+          years_experience: 7
+          proficiency: "advanced"
+          category: "programming"
+      total_years_experience: 8
+      career_level: "senior"
+      summary: "Senior Software Engineer with 8+ years of experience building scalable cloud-native applications. Proven track record leading engineering teams and optimizing high-traffic systems on Azure and AWS."
+
+constraints:
+  - "Extract information as-is; do not infer beyond what's explicitly stated"
+  - "Normalize skill names to industry standards"
+  - "Calculate experience accurately from dates"
+  - "Handle missing information gracefully (use null or omit field)"
+  - "Redact SSN, passport numbers, or other highly sensitive IDs in output"
+  - "Flag if resume contains discriminatory or inappropriate content"
+  - "Support English and Arabic text"
+
+metadata:
+  created_by: "QuantHire AI Team"
+  last_updated: "2024-10-09"
+  accuracy_target: 0.95
+  fallback_rules:
+    - "If dates ambiguous, use 'start of month' convention"
+    - "If skill years not stated, estimate from job descriptions"
+    - "If education year missing, omit rather than guess"
+
+
+
+
+
+
+
+
+
+
+
+

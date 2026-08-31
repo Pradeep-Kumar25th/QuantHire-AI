@@ -1,0 +1,23 @@
+# LangGraph and LangChain Core
+langgraph>=0.2.0
+langchain-core>=0.3.0
+langsmith>=0.1.0
+
+# LLM Providers
+langchain-google-vertexai>=2.0.0
+langchain-google-genai>=2.0.0
+google-cloud-aiplatform>=1.70.0
+
+# CrewAI for Multi-Agent Collaboration
+crewai>=0.80.0
+crewai-tools>=0.12.0
+
+# Vector Database
+pymilvus>=2.4.0
+
+# Embeddings
+sentence-transformers>=3.0.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.0.0

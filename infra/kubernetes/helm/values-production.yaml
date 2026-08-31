@@ -1,0 +1,439 @@
+# ============================================================================
+# WARNING - LEGACY FILE: DO NOT USE FOR DEPLOYMENT
+# This file uses an old schema (api./web./worker. blocks) that does NOT match
+# the current chart templates in quanthire/templates/. Deploying with it would
+# silently ignore most of these values and fall back to chart defaults.
+# For Azure Non-Prod use: quanthire/values-nonprod.yaml
+# ============================================================================
+# Production Values for QuantHireAI Helm Chart
+# Target: 200 concurrent recruiters, 5000 daily uploads, 99.9% uptime
+
+environment: production
+nameOverride: "quanthire"
+fullnameOverride: "quanthire-prod"
+
+# Global settings
+global:
+  region: "qatarcentral"
+  dataResidency: "qatar"
+  timezone: "Asia/Qatar"
+  
+# Image settings
+image:
+  registry: "quanthireprodacr.azurecr.io"
+  pullPolicy: IfNotPresent
+  tag: ""  # Overridden by CI/CD with git SHA
+
+imagePullSecrets:
+  - name: acr-secret
+
+# API Service (FastAPI Backend)
+api:
+  enabled: true
+  replicaCount: 5
+  
+  image:
+    repository: "quanthireprodacr.azurecr.io/api"
+    tag: "latest"
+  
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "2000m"
+      memory: "2Gi"
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 15
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  
+  service:
+    type: ClusterIP
+    port: 8000
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8000"
+      prometheus.io/path: "/metrics"
+  
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/rate-limit: "100"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    hosts:
+      - host: api.quanthire.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: quanthire-api-tls
+        hosts:
+          - api.quanthire.ai
+  
+  env:
+    APP_ENV: "production"
+    LOG_LEVEL: "INFO"
+    DEBUG: "false"
+    CORS_ORIGINS: '["https://app.quanthire.ai"]'
+    RATE_LIMIT_PER_MINUTE: "100"
+    
+    # Database (from external secrets)
+    DATABASE_URL:
+      valueFrom:
+        secretKeyRef:
+          name: quanthire-secrets
+          key: database-url
+    
+    # Redis
+    REDIS_URL:
+      valueFrom:
+        secretKeyRef:
+          name: quanthire-secrets
+          key: redis-url
+    
+    # LLM Configuration
+    OPENAI_API_KEY:
+      valueFrom:
+        secretKeyRef:
+          name: quanthire-secrets
+          key: openai-api-key
+    
+    LLM_DAILY_BUDGET_USD: "250"
+    LLM_ENABLE_BUDGET_ENFORCEMENT: "true"
+    
+    # Monitoring
+    SENTRY_DSN:
+      valueFrom:
+        secretKeyRef:
+          name: quanthire-secrets
+          key: sentry-dsn
+    SENTRY_ENVIRONMENT: "production"
+    
+    LANGCHAIN_API_KEY:
+      valueFrom:
+        secretKeyRef:
+          name: quanthire-secrets
+          key: langchain-api-key
+    LANGCHAIN_PROJECT: "quanthire-prod"
+  
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+  
+  podAnnotations:
+    prometheus.io/scrape: "true"
+  
+  nodeSelector:
+    workload: "application"
+  
+  tolerations: []
+  
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - quanthire-api
+            topologyKey: kubernetes.io/hostname
+
+# Web Service (Next.js Frontend)
+web:
+  enabled: true
+  replicaCount: 3
+  
+  image:
+    repository: "quanthireprodacr.azurecr.io/web"
+    tag: "latest"
+  
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 75
+  
+  service:
+    type: ClusterIP
+    port: 3000
+  
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: app.quanthire.ai
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: quanthire-web-tls
+        hosts:
+          - app.quanthire.ai
+  
+  env:
+    NODE_ENV: "production"
+    NEXT_PUBLIC_API_URL: "https://api.quanthire.ai/api/v1"
+    NEXTAUTH_URL: "https://app.quanthire.ai"
+    NEXTAUTH_SECRET:
+      valueFrom:
+        secretKeyRef:
+          name: quanthire-secrets
+          key: nextauth-secret
+  
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+  
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+
+# Worker Service (Celery)
+worker:
+  enabled: true
+  replicaCount: 4
+  
+  image:
+    repository: "quanthireprodacr.azurecr.io/worker"
+    tag: "latest"
+  
+  resources:
+    requests:
+      cpu: "1000m"
+      memory: "1Gi"
+    limits:
+      cpu: "4000m"
+      memory: "4Gi"
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 4
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+  
+  env:
+    CELERY_BROKER_URL:
+      valueFrom:
+        secretKeyRef:
+          name: quanthire-secrets
+          key: celery-broker-url
+    CELERY_RESULT_BACKEND:
+      valueFrom:
+        secretKeyRef:
+          name: quanthire-secrets
+          key: celery-result-backend
+    CELERY_WORKER_CONCURRENCY: "4"
+  
+  nodeSelector:
+    workload: "application"
+
+# Celery Beat (Scheduler)
+beat:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: "quanthireprodacr.azurecr.io/worker"
+    tag: "latest"
+  
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+# PostgreSQL (External - managed by Azure)
+postgresql:
+  enabled: false  # Using Azure Database for PostgreSQL
+  external:
+    enabled: true
+    host: "quanthire-prod-postgres.postgres.database.azure.com"
+    port: 5432
+    database: "quanthire_db"
+    username: "quanthire_admin"
+    sslMode: "require"
+
+# Redis (External - managed by Azure)
+redis:
+  enabled: false  # Using Azure Cache for Redis
+  external:
+    enabled: true
+    host: "quanthire-prod-redis.redis.cache.windows.net"
+    port: 6380
+    ssl: true
+
+# External Secrets Operator
+externalSecrets:
+  enabled: true
+  backend: "azureKeyVault"
+  keyVault:
+    name: "quanthire-prod-kv"
+    tenantId: ""  # Set via CI/CD
+  refreshInterval: "1h"
+  
+  secrets:
+    - name: "database-url"
+      key: "postgres-connection-string"
+    - name: "redis-url"
+      key: "redis-connection-string"
+    - name: "openai-api-key"
+      key: "openai-api-key"
+    - name: "anthropic-api-key"
+      key: "anthropic-api-key"
+    - name: "nextauth-secret"
+      key: "nextauth-secret"
+    - name: "jwt-secret"
+      key: "jwt-secret"
+    - name: "sentry-dsn"
+      key: "sentry-dsn"
+    - name: "langchain-api-key"
+      key: "langchain-api-key"
+
+# Service Monitor (Prometheus)
+serviceMonitor:
+  enabled: true
+  interval: "30s"
+  scrapeTimeout: "10s"
+
+# Network Policies
+networkPolicies:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+
+# Pod Security Policies
+podSecurityPolicy:
+  enabled: true
+  privileged: false
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 2000
+  capabilities:
+    drop:
+      - ALL
+
+# SLO Targets
+slo:
+  apiLatencyMs: 300
+  agentResponseMs: 2000
+  uptimePercent: 99.9
+  errorRate: 0.1
+
+# Monitoring & Alerts
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+    adminPassword: ""  # Set via secret
+  alerts:
+    enabled: true
+    rules:
+      - name: "HighErrorRate"
+        expr: "rate(http_requests_total{status=~\"5..\"}[5m]) > 0.05"
+        severity: "critical"
+      - name: "HighLatency"
+        expr: "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.3"
+        severity: "warning"
+      - name: "PodCrashLooping"
+        expr: "rate(kube_pod_container_status_restarts_total[15m]) > 0"
+        severity: "critical"
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # 2 AM daily
+  retention: 30  # days
+  storage:
+    type: "azureBlob"
+    container: "backups"
+
+# Resource Quotas
+resourceQuota:
+  enabled: true
+  hard:
+    requests.cpu: "50"
+    requests.memory: "100Gi"
+    persistentvolumeclaims: "10"
+
+# Priority Classes
+priorityClass:
+  enabled: true
+  name: "high-priority"
+  value: 1000
+  globalDefault: false
+
+# Tags
+tags:
+  environment: "production"
+  project: "quanthire"
+  managedBy: "helm"
+  contact: "pradeep.kumar@malomatia.qa"
+  compliance: "gdpr"
+
+
+
+
+
+
+
+
+
+
+
+

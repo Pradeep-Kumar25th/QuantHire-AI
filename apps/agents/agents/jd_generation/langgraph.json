@@ -1,0 +1,9 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "jd_generation_workflow": "./state_machine.py:graph"
+  },
+  "env": ".env",
+  "python_version": "3.11",
+  "dockerfile_lines": []
+}

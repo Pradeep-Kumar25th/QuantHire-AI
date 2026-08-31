@@ -1,0 +1,318 @@
+# QuantHire Non-Prod — raw AKS deployment (kubectl apply, not Helm)
+#
+# Prerequisites: secrets already in namespace (see quanthire-secrets.yaml)
+#
+# Deploy:
+#   kubectl apply -f infra/kubernetes/nonprod/quanthire.yaml
+#
+# Post-deploy:
+#   kubectl exec deploy/quanthire-nonprod-api -n quanthire-nonprod -- alembic upgrade head
+#
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: quanthire-nonprod
+  labels:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: quanthire-nonprod
+  namespace: quanthire-nonprod
+  labels:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quanthire-nonprod-config
+  namespace: quanthire-nonprod
+  labels:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+data:
+  DEPLOYMENT_TARGET: "azure-nonprod"
+  APP_ENV: "nonprod"
+  AUTH_MODE: "basic"
+  AZURE_AD_CLIENT_ID: "221c7e05-6581-4226-9a08-96a4011dd5ce"
+  AZURE_AD_TENANT_ID: "68bae048-c310-4ec2-934f-cbc2588f30fe"
+  DEBUG: "false"
+  LOG_LEVEL: "INFO"
+  POSTGRES_HOST: "psql-ail-npd-we-01.postgres.database.azure.com"
+  POSTGRES_DB: "quanthire_ai"
+  POSTGRES_PORT: "5432"
+  POSTGRES_SSLMODE: "require"
+  LLM_PROVIDER: "azure_openai"
+  LLM_MODEL: "gpt-4o"
+  EMBEDDING_PROVIDER: "azure_openai"
+  EMBEDDING_DIMENSION: "768"
+  AZURE_OPENAI_ENDPOINT: "https://aif-ail-npd-we-01.openai.azure.com/"
+  AZURE_OPENAI_API_VERSION: "2024-08-01-preview"
+  AZURE_OPENAI_CHAT_DEPLOYMENT: "gpt-4o"
+  AZURE_OPENAI_EMBEDDING_DEPLOYMENT: "text-embedding-3-large"
+  STORAGE_TYPE: "azure_blob"
+  AZURE_STORAGE_ACCOUNT_NAME: "dlsailnpdqc01"
+  AZURE_STORAGE_CONTAINER: "quanthire-uploads"
+  AZURE_STORAGE_CONTAINER_PROCESSED: "quanthire-processed"
+  AZURE_STORAGE_BLOB_ENDPOINT: "https://dlsailnpdqc01.blob.core.windows.net/"
+  AZURE_DOCUMENT_INTELLIGENCE_ENABLED: "true"
+  AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: "https://di-ail-npd-we-01.cognitiveservices.azure.com/"
+  AZURE_DOCUMENT_INTELLIGENCE_MODEL: "prebuilt-layout"
+  VECTOR_STORE: "pgvector"
+  MILVUS_ENABLED: "false"
+  MILVUS_AUTO_LOAD: "false"
+  # JD workflow is single-request; MemorySaver avoids Postgres setup hangs on Azure UAT.
+  LANGGRAPH_CHECKPOINT_BACKEND: "memory"
+  PROMETHEUS_ENABLED: "false"
+  BFF_BACKEND_URL: "http://quanthire-backend.quanthire-nonprod.svc.cluster.local:8000"
+  ALLOWED_HOSTS: "api.quanthire.ai,*.quanthire.ai,localhost,127.0.0.1,*.svc.cluster.local,quanthire-backend,quanthire-backend.quanthire-nonprod.svc.cluster.local,quanthire-npd.malomatia.com"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quanthire-nonprod-api
+  namespace: quanthire-nonprod
+  labels:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+    app.kubernetes.io/component: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: quanthire
+      app.kubernetes.io/instance: quanthire-nonprod
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: quanthire
+        app.kubernetes.io/instance: quanthire-nonprod
+        app.kubernetes.io/component: api
+    spec:
+      serviceAccountName: quanthire-nonprod
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: api
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1000
+          image: crailnpdwe01.azurecr.io/quanthire-backend:0.1.5
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            periodSeconds: 10
+            failureThreshold: 30
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: localhost
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          envFrom:
+            - configMapRef:
+                name: quanthire-nonprod-config
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: quanthire-db-secret
+                  key: DATABASE_URL
+            - name: AZURE_STORAGE_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: quanthire-blob-secret
+                  key: AZURE_STORAGE_CONNECTION_STRING
+            - name: AZURE_OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: quanthire-aoai-secret
+                  key: AZURE_OPENAI_API_KEY
+            - name: AZURE_DOCUMENT_INTELLIGENCE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: quanthire-di-secret
+                  key: AZURE_DOCUMENT_INTELLIGENCE_KEY
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: quanthire-auth-secret
+                  key: JWT_SECRET_KEY
+            - name: AZURE_AD_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: quanthire-entra-secret
+                  key: AZURE_AD_CLIENT_SECRET
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quanthire-nonprod-web
+  namespace: quanthire-nonprod
+  labels:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+    app.kubernetes.io/component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: quanthire
+      app.kubernetes.io/instance: quanthire-nonprod
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: quanthire
+        app.kubernetes.io/instance: quanthire-nonprod
+        app.kubernetes.io/component: web
+    spec:
+      serviceAccountName: quanthire-nonprod
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: web
+          securityContext:
+            runAsUser: 1001
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          image: crailnpdwe01.azurecr.io/quanthire-frontend:0.1.5
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3000"
+            - name: BFF_BACKEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: quanthire-nonprod-config
+                  key: BFF_BACKEND_URL
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            failureThreshold: 18
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quanthire-backend
+  namespace: quanthire-nonprod
+  labels:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+    app.kubernetes.io/component: api
+  annotations:
+    # Private AKS: internal LB IP reachable from Jump VM / VNet (same as other Non-Prod apps).
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+    app.kubernetes.io/component: api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quanthire-frontend
+  namespace: quanthire-nonprod
+  labels:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+    app.kubernetes.io/component: web
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: quanthire
+    app.kubernetes.io/instance: quanthire-nonprod
+    app.kubernetes.io/component: web

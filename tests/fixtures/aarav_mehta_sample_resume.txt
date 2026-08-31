@@ -1,0 +1,55 @@
+AARAV MEHTA
+Senior Agentic AI / Machine Learning Engineer
+Bengaluru, Karnataka, India | +91 98765 43210 | aarav.mehta.ai@example.com
+linkedin.com/in/aaravmehta-ai | github.com/aaravmehta-labs
+
+PROFESSIONAL SUMMARY
+AI/ML engineer with 7+ years of experience building production-grade machine learning, generative AI, agentic workflows, and
+enterprise RAG platforms.
+
+CORE SKILLS
+Generative & Agentic AI: LLMs, LangGraph, LangChain, CrewAI
+RAG & Search: hybrid retrieval, semantic search, BM25, embeddings
+Machine Learning: NLP, classification, ranking, recommendation systems
+Backend & Data: Python, FastAPI, PostgreSQL, pgvector, Milvus
+Cloud & MLOps: Azure OpenAI, AKS, Docker, Kubernetes, MLflow
+
+PROFESSIONAL EXPERIENCE
+Principal AI Engineer Apr 2023 - Present
+Nexora Digital Solutions | Bengaluru, India Full-time
+• Architected an enterprise recruitment intelligence platform using 24 specialized agents
+• Built a nine-stage RAG pipeline with hybrid retrieval and reranking
+
+Senior Machine Learning Engineer Jul 2020 - Mar 2023
+QuantEdge Systems | Pune, India Full-time
+• Developed NLP and ranking services for customer-support automation
+
+Machine Learning Engineer Jun 2018 - Jun 2020
+DataVista Labs | Hyderabad, India Full-time
+• Built document classification, entity extraction, and recommendation models
+
+SELECTED PROJECTS
+Agentic Resume Intelligence: Production resume parsing and enrichment service
+Enterprise QuantChat: Recruiter-facing RAG assistant
+
+EDUCATION
+Master of Technology (M.Tech), Artificial Intelligence
+National Institute of Digital Engineering, Bengaluru
+2016 - 2018
+CGPA: 9.1/10
+
+Bachelor of Engineering (B.E.), Computer Science
+Western Institute of Technology, Ahmedabad
+2012 - 2016
+
+CERTIFICATIONS
+• Microsoft Certified: Azure AI Engineer Associate - 2025
+• AWS Certified Machine Learning - Specialty - 2024
+
+AWARDS & LEADERSHIP
+• Engineering Excellence Award, Nexora Digital Solutions - 2025
+• Speaker, Internal AI Architecture Forum - 2024
+
+ADDITIONAL INFORMATION
+Languages: English, Hindi, Gujarati | Work Authorization: India | Availability: 30 days | Preferred Locations: Bengaluru, Pune,
+Hyderabad, Remote
