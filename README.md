@@ -46,11 +46,3 @@ docker build -f Dockerfile.frontend --target production -t quanthire-frontend:0.
 See `infra/kubernetes/nonprod/quanthire.yaml` and `.github/workflows/deploy-nonprod.yml`.
 
 Post-deploy: `kubectl exec deploy/quanthire-nonprod-api -n quanthire-nonprod -- alembic upgrade head`
-
-## Review documentation
-
-Platform sanity review pack for Hazim: [`output/hazim_review/HAZIM_SANITY_REVIEW_PACK.md`](output/hazim_review/HAZIM_SANITY_REVIEW_PACK.md)
-
-## Secrets
-
-Never commit real credentials. Use `infra/kubernetes/nonprod/quanthire-secrets.yaml` placeholders and AKS secrets / Key Vault for NPD.
