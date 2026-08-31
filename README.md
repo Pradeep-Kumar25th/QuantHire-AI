@@ -18,21 +18,9 @@ AI-native hiring platform for Malomatia — JD generation, resume parsing, candi
 | `scripts/` | Validation and E2E scripts |
 | `output/hazim_review/` | Platform sanity review pack |
 
-## Quick start (local validation — no Docker)
 
-```bat
-cd /d "d:\QuantHire AI"
-set PYTHONPATH=apps;apps\api;apps\agents;apps\agents\agents;apps\quantchat
-set JWT_SECRET_KEY=test-jwt-secret-key-with-32-chars-minimum
-set APP_ENV=testing
-set AUTH_MODE=none
-python -m pytest tests\unit -q
-python scripts\validate_sso_implementation.py
-python scripts\validate_hr_recruiter_sso.py
-python apps\api\scripts\validate_all_phases.py
 ```
 
-Or run all checks: `scripts\validate_hazim_pre_review.cmd`
 
 ## Docker build (from repo root)
 
