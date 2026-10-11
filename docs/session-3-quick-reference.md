@@ -1,8 +1,8 @@
-# Also at repo root: SESSION-3-QUICK-REFERENCE.md
-
 # Session 3 Quick Reference Guide
 
 QuantHire AI - AI Components, Agentic Workflows and Observability
+
+Copy at repo root: SESSION-3-QUICK-REFERENCE.md (same content).
 
 Line numbers = IDE Go to line. Full doc: docs/session-3-ai-components-complete.md
 
