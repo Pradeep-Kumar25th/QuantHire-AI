@@ -9,6 +9,8 @@
 | **Format** | Tables: **Area \| File \| Function / symbol \| Line \| Brief** |
 | **Line numbers** | IDE “Go to line” (repo branch used for KT verification) |
 | **Full reference** | [session-3-ai-components-complete.md](./session-3-ai-components-complete.md) |
+| **Presenter script** | [session-3-executive-presenter-script.md](./session-3-executive-presenter-script.md) |
+| **All Session 3 docs** | [session-3-README.md](./session-3-README.md) |
 
 ---
 
