@@ -3,7 +3,7 @@
 **QuantHire AI — KT Session 3**  
 **Covers:** QuantChat (routing → RAG → generation), JD / resume / matching workflows, LLM configuration, evaluation & feedback, observability.  
 **Line numbers:** verified against repo branch `cursor/jd-generation-architecture-doc-b100` (use IDE “Go to line”).  
-**Companions:** `docs/agentic-systems-quick-reference.md`, `docs/session-3-ai-agents-observability-presenter-pack.md`
+**Companions:** `docs/session-3-quick-reference.md` (one-page tables), `docs/agentic-systems-quick-reference.md`, `docs/session-3-ai-agents-observability-presenter-pack.md`
 
 ---
 
