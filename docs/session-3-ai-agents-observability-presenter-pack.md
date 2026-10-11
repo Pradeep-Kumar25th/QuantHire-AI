@@ -4,7 +4,7 @@
 **Audience:** AI engineers continuing development (e.g. Farhaan)  
 **Suggested duration:** 60–90 minutes  
 **Prerequisites:** Session 1 (architecture), Session 2 (code walkthrough)  
-**Companions:** `docs/agentic-systems-quick-reference.md`, `docs/session-2-agentic-code-tour.md`
+**Companions:** `docs/session-3-ai-components-complete.md` (full tables + line index), `docs/agentic-systems-quick-reference.md`, `docs/session-2-agentic-code-tour.md`
 
 ---
 
