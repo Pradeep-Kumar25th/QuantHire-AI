@@ -4,7 +4,73 @@
 **Repository:** [Pradeep-Kumar25th/QuantHire-AI](https://github.com/Pradeep-Kumar25th/QuantHire-AI)  
 **Non-Prod:** https://quanthire-npd.malomatia.com  
 
-Use this page to find and download every KT document. In GitHub, open a file and use **Raw** or **Download**; or clone the repo and open `docs/`.
+Use this page to find and download every KT document. In GitHub, open a file and use **Raw** or **Download**; or open the same files **inside Cursor** (see below).
+
+---
+
+## Open in Cursor (local IDE)
+
+### One-time setup
+
+1. **Clone** (if you do not have the repo yet):
+   ```bash
+   git clone https://github.com/Pradeep-Kumar25th/QuantHire-AI.git
+   ```
+2. **Open the repo as a folder:** Cursor → **File → Open Folder…** → select the `QuantHire-AI` directory (repo root, not only `docs/`).
+3. **Use the branch that has all KT files:**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+### Fastest ways to open a doc
+
+| Action | Windows / Linux | macOS |
+|--------|-----------------|--------|
+| **Quick Open** (type filename) | `Ctrl+P` | `Cmd+P` |
+| **Quick Open by path** | `Ctrl+P` then paste path below | `Cmd+P` |
+| **Markdown preview** | `Ctrl+Shift+V` | `Cmd+Shift+V` |
+| **Explorer: `docs` folder** | `Ctrl+Shift+E` → expand **docs** | `Cmd+Shift+E` |
+
+**Start here in Quick Open (`Ctrl+P` / `Cmd+P`):** type `KT-MASTER-INDEX` and press Enter.
+
+### Paths to paste in Quick Open (`Ctrl+P` / `Cmd+P`)
+
+Copy a path, paste into Quick Open, Enter:
+
+```
+docs/KT-MASTER-INDEX.md
+docs/QuantHire-AI-architecture-and-resources.md
+docs/session-1-architecture-and-resources-complete.md
+docs/kt-session-1-presenter-pack.md
+docs/kt-session-1-executive-presenter-script.md
+docs/kt-session-1-architecture-and-resources.md
+docs/project-resources-inventory.md
+docs/jd-generation-architecture.md
+docs/session-2-code-walkthrough-complete.md
+docs/session-2-agentic-code-tour.md
+docs/agentic-systems-quick-reference.md
+docs/session-3-README.md
+docs/session-3-quick-reference.md
+docs/session-3-ai-components-complete.md
+docs/session-3-executive-presenter-script.md
+docs/session-3-ai-agents-observability-presenter-pack.md
+docs/local-development-without-docker.md
+QuantHire-AI-architecture-and-resources.md.txt
+SESSION-3-QUICK-REFERENCE.md
+```
+
+### Open several docs at once (optional)
+
+- **File → Open File…** and multi-select from `docs/`.
+- Or in the terminal (repo root), Cursor CLI if installed:
+  ```bash
+  cursor docs/KT-MASTER-INDEX.md docs/session-3-quick-reference.md
+  ```
+
+### If a file does not appear
+
+You are probably on an old branch or stale clone. Run `git checkout main && git pull origin main`, then try Quick Open again.
 
 ---
 
