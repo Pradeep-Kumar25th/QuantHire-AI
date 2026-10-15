@@ -4,7 +4,12 @@
 **Repository:** [Pradeep-Kumar25th/QuantHire-AI](https://github.com/Pradeep-Kumar25th/QuantHire-AI)  
 **Non-Prod:** https://quanthire-npd.malomatia.com  
 
-Use this page to find and download every KT document. In GitHub, open a file and use **Raw** or **Download**; or open the same files **inside Cursor** (see below).
+Use this page to find and download every KT document.
+
+| Where to open | How |
+|---------------|-----|
+| **Cursor (recommended)** | **`Ctrl+P`** / **`Cmd+P`** → type **`KT-OPEN-IN-CURSOR`** or see [KT-OPEN-IN-CURSOR.md](./KT-OPEN-IN-CURSOR.md) |
+| **GitHub (browser / raw download)** | Links in sections below, or **Code → Download ZIP** |
 
 ---
 
