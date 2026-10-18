@@ -12,14 +12,15 @@
 
 | # | Item | Where it lives | Send how |
 |---|------|----------------|----------|
-| 1 | **This consolidated handover** | `docs/TECHNICAL-HANDOVER-TO-MALOMATIA.md` | Email link or attach; ensure copy is in **Azure DevOps** repo |
-| 2 | **KT documentation index** | `docs/KT-MASTER-INDEX.md` or root `OPEN-KT-DOCS-IN-CURSOR.md` | Same — all Session 1–3 docs listed |
-| 3 | **Local setup (Shraddha’s ask)** | `docs/local-development-without-docker.md` | **Primary doc for “repository up and running locally”** |
-| 4 | **Non-Prod deploy runbook** | `docs/nonprod-deploy-handover-guide.md` | For releases to AKS/ACR |
-| 5 | **Architecture reference** | `docs/QuantHire-AI-architecture-and-resources.md` | Session 1 consolidated |
-| 6 | **Environment templates** | `.env.example`, `apps/web/.env.example` | No secrets — variable names only |
-| 7 | **K8s config (Non-Prod)** | `infra/kubernetes/nonprod/quanthire.yaml` | Shows URLs, Azure resource names, image tags |
-| 8 | **Business Requirements Document (BRD)** | **Not in source repo** | Attach separately (SharePoint / email / ADO wiki) — see §2 |
+| 1 | **Three-document pack index** | `docs/HANDOVER-THREE-DOCUMENT-PACK.md` | **Send Hazim/Shraddha this + the three files below** |
+| 2 | **Consolidated technical documentation** | `docs/CONSOLIDATED-TECHNICAL-DOCUMENTATION.md` | Architecture, stack, Azure, API, deploy |
+| 3 | **Local setup guide** | `docs/LOCAL-SETUP-GUIDE.md` | **Primary doc for “repository up and running locally”** |
+| 4 | **BRD** | `docs/QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md` | Business requirements (Hazim’s BRD ask) |
+| 5 | **This consolidated handover** | `docs/TECHNICAL-HANDOVER-TO-MALOMATIA.md` | Email checklist + template |
+| 6 | **KT documentation index** | `docs/KT-MASTER-INDEX.md` or root `OPEN-KT-DOCS-IN-CURSOR.md` | Session 1–3 deep dives |
+| 7 | **Non-Prod deploy runbook** | `docs/nonprod-deploy-handover-guide.md` | For releases to AKS/ACR |
+| 8 | **Environment templates** | `.env.example`, `apps/web/.env.example` | No secrets — variable names only |
+| 9 | **K8s config (Non-Prod)** | `infra/kubernetes/nonprod/quanthire.yaml` | Shows URLs, Azure resource names, image tags |
 
 **Do not email or commit:** database passwords, `JWT_SECRET_KEY`, Azure OpenAI keys, storage connection strings, Entra client secret. Those are already on **AKS secrets** for Non-Prod; for local dev, platform team must grant access or share via **Key Vault / TAMM**.
 
@@ -27,12 +28,9 @@
 
 ## 2. Business Requirements Document (BRD) — Hazim’s request
 
-There is **no BRD file** in the QuantHire Git repository. JD templates and product behaviour are reflected in code and KT docs, not a formal BRD markdown/PDF in `docs/`.
+**Deliverable:** [`docs/QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md`](./QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md)
 
-**Action for handover:**
-
-- Send the **official BRD** (Word/PDF) you used for the project — from project management / Malomatia sharepoint — as a **separate attachment** to Hazim.
-- If no standalone BRD exists, send a **one-page substitute**: scope (JD, resume, matching, QuantChat), roles (Recruiter, Admin, …), and NPD URL — and note that detailed behaviour is in KT Session 1–3 docs.
+Export to PDF/Word for formal PMO submission if required. Malomatia product owner may sign the approval section in the BRD.
 
 ---
 

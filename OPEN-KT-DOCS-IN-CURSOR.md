@@ -8,6 +8,10 @@ If links 404, run in the terminal: `git checkout main && git pull origin main`
 
 ## Hub pages
 
+- [docs/HANDOVER-THREE-DOCUMENT-PACK.md](docs/HANDOVER-THREE-DOCUMENT-PACK.md) — **Send to Malomatia: technical + local + BRD**
+- [docs/CONSOLIDATED-TECHNICAL-DOCUMENTATION.md](docs/CONSOLIDATED-TECHNICAL-DOCUMENTATION.md)
+- [docs/LOCAL-SETUP-GUIDE.md](docs/LOCAL-SETUP-GUIDE.md)
+- [docs/QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md](docs/QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md)
 - [docs/KT-OPEN-IN-CURSOR.md](docs/KT-OPEN-IN-CURSOR.md) — Quick Open shortcuts (`Ctrl+P` / `Cmd+P`)
 - [docs/KT-MASTER-INDEX.md](docs/KT-MASTER-INDEX.md) — Full catalog + GitHub raw download URLs
 

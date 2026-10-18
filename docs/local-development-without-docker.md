@@ -1,5 +1,7 @@
 # QuantHire AI — Local development without Docker
 
+> **Handover deliverable:** The detailed local setup guide for Malomatia is **[LOCAL-SETUP-GUIDE.md](./LOCAL-SETUP-GUIDE.md)**. This file remains a concise reference; prefer the guide for onboarding.
+
 **Audience:** Engineers running the app on a laptop (e.g. continuing QuantHire development).  
 **Purpose:** Start **frontend + backend natively** — no full application Docker images.
 

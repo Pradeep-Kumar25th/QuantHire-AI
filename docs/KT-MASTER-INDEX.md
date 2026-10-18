@@ -121,11 +121,20 @@ You are probably on an old branch or stale clone. Run `git checkout main && git 
 
 ---
 
+## Handover pack (Hazim / Shraddha — send these three)
+
+| Document | Purpose |
+|----------|---------|
+| [HANDOVER-THREE-DOCUMENT-PACK.md](./HANDOVER-THREE-DOCUMENT-PACK.md) | Index for the three deliverables below |
+| [CONSOLIDATED-TECHNICAL-DOCUMENTATION.md](./CONSOLIDATED-TECHNICAL-DOCUMENTATION.md) | **Consolidated technical documentation** |
+| [LOCAL-SETUP-GUIDE.md](./LOCAL-SETUP-GUIDE.md) | **Local setup guide** |
+| [QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md](./QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md) | **BRD** |
+
 ## Onboarding & operations (cross-session)
 
 | Document | Purpose |
 |----------|---------|
-| [local-development-without-docker.md](./local-development-without-docker.md) | Run frontend + API natively (for engineers avoiding heavy Docker images) |
+| [local-development-without-docker.md](./local-development-without-docker.md) | Short local dev reference (see LOCAL-SETUP-GUIDE for full detail) |
 | [nonprod-deploy-handover-guide.md](./nonprod-deploy-handover-guide.md) | **Non-Prod deploy:** ACR build/push, AKS rollout, Alembic (KT handover) |
 | [TECHNICAL-HANDOVER-TO-MALOMATIA.md](./TECHNICAL-HANDOVER-TO-MALOMATIA.md) | **Email Hazim/Shraddha:** consolidated handover + BRD note + local setup pointer |
 
