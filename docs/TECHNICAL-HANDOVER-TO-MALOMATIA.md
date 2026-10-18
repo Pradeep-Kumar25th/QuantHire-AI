@@ -52,7 +52,7 @@ The team can **start using QuantHire today** on Non-Prod if they have **login ac
 
 ## 4. Local repository setup (Shraddha’s ask)
 
-**Start here:** [`docs/local-development-without-docker.md`](./local-development-without-docker.md)
+**Start here:** [`docs/LOCAL-SETUP-GUIDE.md`](./LOCAL-SETUP-GUIDE.md)
 
 Summary for the team:
 
@@ -87,7 +87,10 @@ After upload, confirm the ADO repository includes at minimum:
 
 ```text
 docs/KT-MASTER-INDEX.md
-docs/local-development-without-docker.md
+docs/LOCAL-SETUP-GUIDE.md
+docs/CONSOLIDATED-TECHNICAL-DOCUMENTATION.md
+docs/QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md
+docs/HANDOVER-THREE-DOCUMENT-PACK.md
 docs/nonprod-deploy-handover-guide.md
 docs/TECHNICAL-HANDOVER-TO-MALOMATIA.md
 OPEN-KT-DOCS-IN-CURSOR.md
@@ -132,7 +135,7 @@ All listed in [`docs/KT-MASTER-INDEX.md`](./KT-MASTER-INDEX.md):
 
 | Topic | First doc / action |
 |-------|---------------------|
-| Local won’t start | `docs/local-development-without-docker.md` → § troubleshooting |
+| Local won’t start | `docs/LOCAL-SETUP-GUIDE.md` → § troubleshooting |
 | Deploy NPD | `docs/nonprod-deploy-handover-guide.md` |
 | Code navigation | `docs/session-2-code-walkthrough-complete.md` |
 | AI / agents | `docs/session-3-quick-reference.md` |
@@ -152,22 +155,22 @@ Please find below the consolidated technical handover for QuantHire AI.
 Non-Prod: https://quanthire-npd.malomatia.com  
 User access: TAMM request for Entra app **AIL-QUANTHIRE-NPD**, app role **RECRUITER** (or as needed).
 
-**2. Run the repository locally**  
-Primary guide: **docs/local-development-without-docker.md** (in the Azure DevOps repo).  
-Prerequisites: Node 20, Python 3.11, PostgreSQL; optional Azure OpenAI/DI for full AI features.
+**2. Consolidated technical documentation**  
+**docs/CONSOLIDATED-TECHNICAL-DOCUMENTATION.md**
 
-**3. Full KT & architecture documentation**  
-Index: **docs/KT-MASTER-INDEX.md** (Sessions 1–3, quick references, deploy runbook).  
-One-click list in Cursor: **OPEN-KT-DOCS-IN-CURSOR.md** at repo root.
+**3. Run the repository locally**  
+**docs/LOCAL-SETUP-GUIDE.md** (Node 20, Python 3.11, PostgreSQL; Azure keys for full AI).
 
-**4. Non-Prod deployment (ACR/AKS)**  
-**docs/nonprod-deploy-handover-guide.md**
+**4. Business Requirements Document (BRD)**  
+**docs/QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md** (export to PDF if PMO requires).
 
-**5. Business Requirements Document (BRD)**  
-Attached separately: [attach your BRD PDF/Word here].  
-(The BRD is not stored in the application repository.)
+**5. Pack index (all three)**  
+**docs/HANDOVER-THREE-DOCUMENT-PACK.md**
 
-**6. Code**  
+**6. Additional KT & deploy**  
+**docs/KT-MASTER-INDEX.md**, **docs/nonprod-deploy-handover-guide.md**, **OPEN-KT-DOCS-IN-CURSOR.md**
+
+**7. Code**  
 Frontend and backend are in the Azure DevOps repository you provided; branch **main** includes the documentation paths above.
 
 Secrets (DB, API keys, JWT) are configured on Azure Non-Prod Kubernetes and are not included in email or Git. For local development against Azure services, please use the usual platform / TAMM process.
