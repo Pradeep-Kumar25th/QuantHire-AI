@@ -101,6 +101,8 @@ AUTH_MODE=none
 DEPLOYMENT_TARGET=local
 API_HOST=0.0.0.0
 API_PORT=8000
+MILVUS_ENABLED=false
+MILVUS_AUTO_LOAD=false
 ```
 
 **L2 — with database**
