@@ -47,9 +47,10 @@ If links 404, run in the terminal: `git checkout main && git pull origin main`
 
 ---
 
-## Onboarding
+## Onboarding & deploy
 
 - [docs/local-development-without-docker.md](docs/local-development-without-docker.md)
+- [docs/nonprod-deploy-handover-guide.md](docs/nonprod-deploy-handover-guide.md)
 
 ---
 

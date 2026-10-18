@@ -29,6 +29,7 @@ All KT files are on branch **`main`** under `docs/`. Use this page when you want
 | `session-3-ai-components-complete` | Session 3 — full reference |
 | `session-3-executive` | Session 3 — presenter script |
 | `local-development-without-docker` | Run without Docker |
+| `nonprod-deploy-handover` | Non-Prod ACR build + AKS deploy (KT) |
 
 4. **Markdown preview:** with the file open, **`Ctrl+Shift+V`** / **`Cmd+Shift+V`**.
 
