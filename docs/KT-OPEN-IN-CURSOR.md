@@ -6,6 +6,8 @@ All KT files are on branch **`main`** under `docs/`. Use this page when you want
 
 ## A. You already have the repo open in Cursor
 
+**One-click hub:** open [OPEN-KT-DOCS-IN-CURSOR.md](../OPEN-KT-DOCS-IN-CURSOR.md) at repo root (`Ctrl+P` → `OPEN-KT-DOCS`) and **Ctrl+click** any document link.
+
 1. Pull latest KT files:
    ```bash
    git checkout main && git pull origin main
