@@ -127,6 +127,7 @@ You are probably on an old branch or stale clone. Run `git checkout main && git 
 |----------|---------|
 | [local-development-without-docker.md](./local-development-without-docker.md) | Run frontend + API natively (for engineers avoiding heavy Docker images) |
 | [nonprod-deploy-handover-guide.md](./nonprod-deploy-handover-guide.md) | **Non-Prod deploy:** ACR build/push, AKS rollout, Alembic (KT handover) |
+| [TECHNICAL-HANDOVER-TO-MALOMATIA.md](./TECHNICAL-HANDOVER-TO-MALOMATIA.md) | **Email Hazim/Shraddha:** consolidated handover + BRD note + local setup pointer |
 
 ---
 

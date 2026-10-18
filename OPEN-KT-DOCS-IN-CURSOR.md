@@ -49,6 +49,7 @@ If links 404, run in the terminal: `git checkout main && git pull origin main`
 
 ## Onboarding & deploy
 
+- [docs/TECHNICAL-HANDOVER-TO-MALOMATIA.md](docs/TECHNICAL-HANDOVER-TO-MALOMATIA.md) — **send to Malomatia team (Hazim / Shraddha)**
 - [docs/local-development-without-docker.md](docs/local-development-without-docker.md)
 - [docs/nonprod-deploy-handover-guide.md](docs/nonprod-deploy-handover-guide.md)
 
