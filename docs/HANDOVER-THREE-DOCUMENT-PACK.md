@@ -6,7 +6,7 @@ Send these **three separate documents** to Hazim and Shraddha (attach or link fr
 |---|----------|------|---------|
 | **1** | **Consolidated technical documentation** | [CONSOLIDATED-TECHNICAL-DOCUMENTATION.md](./CONSOLIDATED-TECHNICAL-DOCUMENTATION.md) | Architecture, stack, auth, data, AI, Azure, API, deploy, limitations |
 | **2** | **Local setup guide** | [LOCAL-SETUP-GUIDE.md](./LOCAL-SETUP-GUIDE.md) | Clone repo, L1/L2/L3, Windows/macOS/Linux, verify, troubleshoot |
-| **2b** | **Run from Teams zip** | [RUN-LOCALLY-STEP-BY-STEP-HANDOVER.md](./RUN-LOCALLY-STEP-BY-STEP-HANDOVER.md) | Unzip handover → configure → run (Windows step-by-step) |
+| **2b** | **Run from Teams zip** | [LOCAL-SETUP-GUIDE-ZIP-HANDOVER.md](./LOCAL-SETUP-GUIDE-ZIP-HANDOVER.md) + [RUN-QUANTHIRE-LOCALLY-READ-ME-FIRST.md](../RUN-QUANTHIRE-LOCALLY-READ-ME-FIRST.md) at zip root | Unzip handover → configure → run (Windows step-by-step) |
 | **3** | **Business Requirements Document (BRD)** | [QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md](./QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md) | Objectives, scope, functional & non-functional requirements, acceptance criteria |
 
 **Open in Cursor:** `Ctrl+P` → type `HANDOVER-THREE` or any filename above.

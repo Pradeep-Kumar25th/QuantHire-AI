@@ -1,5 +1,7 @@
 # QuantHire AI — Run locally on your laptop (step-by-step handover guide)
 
+> **Latest (ZIP from Teams):** use **[LOCAL-SETUP-GUIDE-ZIP-HANDOVER.md](./LOCAL-SETUP-GUIDE-ZIP-HANDOVER.md)** and root **`RUN-QUANTHIRE-LOCALLY-READ-ME-FIRST.md`**. This file is kept for reference.
+
 **Audience:** Malomatia team receiving the **zipped project** via Teams (or Azure DevOps clone)  
 **One-page version:** [TEAMS-LOCAL-QUICK-START.md](./TEAMS-LOCAL-QUICK-START.md) · **Teams paste text:** [TEAMS-MESSAGE-LOCAL-SETUP.txt](./TEAMS-MESSAGE-LOCAL-SETUP.txt)  
 **Project folder example:** `D:\QuantHire AI`  
