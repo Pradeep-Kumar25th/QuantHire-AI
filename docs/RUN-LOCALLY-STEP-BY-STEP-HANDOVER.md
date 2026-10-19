@@ -1,6 +1,7 @@
 # QuantHire AI — Run locally on your laptop (step-by-step handover guide)
 
 **Audience:** Malomatia team receiving the **zipped project** via Teams (or Azure DevOps clone)  
+**One-page version:** [TEAMS-LOCAL-QUICK-START.md](./TEAMS-LOCAL-QUICK-START.md) · **Teams paste text:** [TEAMS-MESSAGE-LOCAL-SETUP.txt](./TEAMS-MESSAGE-LOCAL-SETUP.txt)  
 **Project folder example:** `D:\QuantHire AI`  
 **Time:** First setup ~1–2 hours (L2); full AI features (L3) depend on Azure credentials  
 

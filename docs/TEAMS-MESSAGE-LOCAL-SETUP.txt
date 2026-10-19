@@ -1,0 +1,32 @@
+Hi Shraddha and team,
+
+Thank you for your patience. Here is how to run the QuantHire AI package locally after unzipping the folder from Teams.
+
+MAIN GUIDE (step-by-step, Windows):
+  Unzip the folder, then open:
+  docs\RUN-LOCALLY-STEP-BY-STEP-HANDOVER.md
+
+ONE-PAGE QUICK START:
+  docs\TEAMS-LOCAL-QUICK-START.md
+
+Summary:
+  1. Unzip to e.g. D:\QuantHire AI
+  2. Do NOT use a .env file from someone else — create a new .env at the project root (instructions in the guide)
+  3. Create apps\web\.env.local with: BFF_BACKEND_URL=http://localhost:8000
+  4. Start PostgreSQL (pgvector) — Docker command is in the guide
+  5. Two terminals: (1) FastAPI backend python run.py  (2) Next.js npm run dev in apps\web
+  6. Open browser at http://localhost:3000
+
+To USE the application without local setup:
+  https://quanthire-npd.malomatia.com
+  Access: TAMM for Entra app AIL-QUANTHIRE-NPD, role RECRUITER
+
+Documentation in the zip:
+  docs\CONSOLIDATED-TECHNICAL-DOCUMENTATION.md
+  docs\QUANTHIRE-BUSINESS-REQUIREMENTS-DOCUMENT-BRD.md
+  docs\LOCAL-SETUP-GUIDE.md
+
+If anything fails, follow Part K in the step-by-step guide and send us the step number and error log.
+
+Regards,
+Pradeep
